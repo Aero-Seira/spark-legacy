@@ -38,7 +38,7 @@ processResources {
 }
 
 shadowJar {
-    archiveFileName = "spark-${project.pluginVersion}-forge.jar"
+    archiveFileName = "spark-${project.pluginVersion}-forge-fix.jar"
     configurations = [project.configurations.shade]
 
     relocate 'net.kyori.adventure', 'me.lucko.spark.lib.adventure'

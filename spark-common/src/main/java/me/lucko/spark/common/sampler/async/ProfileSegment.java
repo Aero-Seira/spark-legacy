@@ -20,10 +20,11 @@
 
 package me.lucko.spark.common.sampler.async;
 
+import com.google.common.collect.ImmutableMap;
 import me.lucko.spark.common.sampler.async.jfr.JfrReader;
 
 import java.nio.charset.StandardCharsets;
-
+import java.util.Map;
 /**
  * Represents a profile "segment".
  *
@@ -31,6 +32,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class ProfileSegment {
 
+    private static final String UNKNOWN_THREAD_STATE = "<unknown>";
     /** The native thread id (does not correspond to Thread#getId) */
     private final int nativeThreadId;
     /** The name of the thread */
@@ -72,6 +74,12 @@ public class ProfileSegment {
             stack[i] = parseStackFrame(reader, stackTrace.methods[i]);
         }
 
+        String threadState = UNKNOWN_THREAD_STATE;
+        if (sample instanceof JfrReader.ExecutionSample) {
+            JfrReader.ExecutionSample executionSample = (JfrReader.ExecutionSample) sample;
+            Map<Integer, String> threadStateLookup = reader.enums.getOrDefault("jdk.types.ThreadState", ImmutableMap.of());
+            threadState = threadStateLookup.getOrDefault(executionSample.threadState, UNKNOWN_THREAD_STATE);
+        }
         return new ProfileSegment(sample.tid, threadName, stack, value);
     }
 
